@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::io::{Read, BufRead, BufReader};
 
 #[cfg(test)]
 mod tests;
@@ -101,17 +102,38 @@ impl DictNode {
 }
 
 impl Dict {
-    pub fn load(raw: &str) -> Self {
-        let root = raw.lines()
-            .filter_map(|line| {
-                let mut cols = line.splitn(2, ' ');
-                Some((cols.next()?, cols.next()?))
-            }).fold(DictNode::new(), |dict, (key, value)| {
-                dict.add(key, value)
+    /// Load dict from string
+    pub fn load_str<T>(raw: T) -> Self
+    where T: AsRef<str> {
+        Dict::load_lines(raw.as_ref().lines())
+    }
+
+    /// Load dict from string lines.
+    pub fn load_lines<T, S>(lines: T) -> Self
+    where T: Iterator<Item=S>,
+          S: AsRef<str> {
+        let root = lines.filter_map(|line| {
+                let mut cols = line.as_ref().splitn(2, '\t');
+                let key = cols.next()?;
+                let value = cols.next()?.splitn(2, ' ').next()?;
+                Some((key.into(), value.into()))
+            }).fold(DictNode::new(), |dict, (key, value): (String, String)| {
+                dict.add(&key, &value)
             });
         Dict { root }
     }
 
+    /// Load dict file.
+    /// The format is the same as OpenCC's text dictionary file.
+    /// Unrecognizable data will be silently ignored.
+    pub fn load<T>(reader: T) -> Self
+    where T: Read {
+        let lines = BufReader::new(reader).lines().filter_map(|l| l.ok());
+        Dict::load_lines(lines)
+    }
+
+    /// Use this dict to convert string.
+    /// Return converted text.
     pub fn replace_all(&self, mut text: &str) -> String {
         let mut output = String::with_capacity(text.len());
         while !text.is_empty() {
