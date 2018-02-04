@@ -1,0 +1,6 @@
+[package]
+name = "simplecc"
+version = "0.1.0"
+authors = ["sorz <orz@sorz.org>"]
+
+[dependencies]
