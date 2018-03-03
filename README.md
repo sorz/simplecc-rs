@@ -1,4 +1,5 @@
 # simplecc
+[![Travis Build Status](https://travis-ci.org/sorz/simplecc-rs.svg?branch=master)](https://travis-ci.org/sorz/simplecc-rs)
 [![crates.io](https://img.shields.io/crates/v/simplecc.svg)](https://crates.io/crates/simplecc)
 [![API docs](https://docs.rs/simplecc/badge.svg)](http://docs.rs/simplecc)
 
