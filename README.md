@@ -1,4 +1,6 @@
 # simplecc
+[![crates.io](https://img.shields.io/crates/v/simplecc.svg)](https://crates.io/crates/simplecc)
+[![API docs](https://docs.rs/simplecc/badge.svg)](http://docs.rs/simplecc)
 
 A simple Chinese Convert library (partially) compatible with
 [OpenCC](https://github.com/BYVoid/OpenCC/)'s 
