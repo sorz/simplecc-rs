@@ -1,6 +1,4 @@
 use super::Dict;
-use std::fs::File;
-use std::io::Read;
 
 #[test]
 fn test_prefix_match() {
@@ -44,9 +42,7 @@ fn test_dict_ts() {
     后悔莫及。人事间最痛苦的事莫过于此。如果上天能够给我一个再来一次得机会，\
     我会对那个女孩子说三个字，我爱你。如果非要在这份爱上加个期限，我希望是，\
     一万年。";
-    let file = File::open("data/TSCharacters.txt").unwrap()
-        .chain(File::open("data/TSPhrases.txt").unwrap());
-    let dict = Dict::load(file);
+    let dict = Dict::dict_t2s();
     assert_eq!(sc, dict.replace_all(tc));
 }
 
@@ -76,8 +72,6 @@ fn test_dict_st() {
     新的理論被發現了。
     鮎魚和鮎魚是一種生物。
     金胄不是金色的甲冑。";
-    let file = File::open("data/STCharacters.txt").unwrap()
-        .chain(File::open("data/STPhrases.txt").unwrap());
-    let dict = Dict::load(file);
+    let dict = Dict::dict_s2t();
     assert_eq!(tc, dict.replace_all(sc));
 }

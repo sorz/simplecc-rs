@@ -1,6 +1,6 @@
 [package]
 name = "simplecc"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Shell Chen <me@sorz.org>"]
 repository = "https://github.com/sorz/simplecc-rs"
 description = "A simple Chinese Convert library (partially) compatible with OpenCC's dictionaries."
@@ -9,4 +9,14 @@ keywords = ["OpenCC"]
 categories = ["text-processing"]
 license = "MIT"
 
+[badges]
+travis-ci = { repository = "sorz/simplecc-rs" }
+
+[package.metadata.docs.rs]
+all-features = true
+
 [dependencies]
+
+[features]
+default = []
+builtin_dicts = []

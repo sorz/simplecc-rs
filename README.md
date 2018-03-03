@@ -11,6 +11,8 @@ A simple Chinese Convert library (partially) compatible with
   
   No complex configurations, all need is a text dictionary and input text.
 
+  Built-in dictionaries included if `builtin_dicts` feature is on.
+
 * Fast
 
   Use hashmap with tree structure for dictionary, faster than original OpenCC.

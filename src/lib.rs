@@ -6,6 +6,8 @@
 //! 
 //!   No complex configurations, all need is a text dictionary and input text.
 //! 
+//!   Built-in dictionaries included if `builtin_dicts` feature is on.
+//! 
 //! * Fast
 //! 
 //!   Use hashmap with tree structure for dictionary, faster than original
@@ -22,6 +24,11 @@ mod tests;
 /// [OpenCC's repo](https://github.com/BYVoid/OpenCC/tree/master/data/dictionary).
 /// 
 /// For chaining multiple dicts, just concat all to one file (in any order).
+/// 
+/// # Built-in dictionaries
+/// The library includes two optional dictionaries when `builtin_dicts`
+/// feature is on. Disabled by default.
+/// 
 ///
 /// # File Format
 /// The format is the same as text format (not the compiled binary one)
@@ -130,6 +137,31 @@ impl DictNode {
 }
 
 impl Dict {
+    /// Built-in Traditional to Simplified Chinese dictionary.
+    ///
+    /// Enable by `builtin_dicts` feature.
+    #[cfg(feature = "builtin_dicts")]
+    pub fn dict_t2s() -> Self {
+        // TODO: use lazy_static
+        let dict = concat!(
+            include_str!("../data/TSCharacters.txt"),
+            include_str!("../data/TSPhrases.txt"),
+        );
+        Dict::load_str(dict)
+    }
+
+    /// Built-in Simplified to Traditional Chinese dictionary.
+    ///
+    /// Enable by `builtin_dicts` feature.
+    #[cfg(feature = "builtin_dicts")]
+    pub fn dict_s2t() -> Self {
+        let dict = concat!(
+            include_str!("../data/STCharacters.txt"),
+            include_str!("../data/STPhrases.txt"),
+        );
+        Dict::load_str(dict)
+    }
+
     /// Load dict from string
     pub fn load_str<T>(raw: T) -> Self
     where T: AsRef<str> {
