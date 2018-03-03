@@ -1,9 +1,37 @@
+//! A simple Chinese Convert library (partially) compatible with
+//! [OpenCC](https://github.com/BYVoid/OpenCC/)'s 
+//! [dictionaries](https://github.com/BYVoid/OpenCC/tree/master/data/dictionary).
+//! 
+//! * Simple
+//! 
+//!   No complex configurations, all need is a text dictionary and input text.
+//! 
+//! * Fast
+//! 
+//!   Use hashmap with tree structure for dictionary, faster than original
+//!   OpenCC.
 use std::collections::HashMap;
 use std::io::{Read, BufRead, BufReader};
 
 #[cfg(test)]
 mod tests;
 
+/// Dictionary to convert text.
+/// 
+/// This library doesn't contain dictionary file. You may download them from
+/// [OpenCC's repo](https://github.com/BYVoid/OpenCC/tree/master/data/dictionary).
+/// 
+/// For chaining multiple dicts, just concat all to one file (in any order).
+///
+/// # File Format
+/// The format is the same as text format (not the compiled binary one)
+/// in OpenCC project.
+/// 
+/// Specifically, one rule per line, two columns per rule splitted by a TAB
+/// (`\t`). First column is original word/phrase, the other is converted one,
+/// which may contains multiples word/phrase splitted by a space (` `), but
+/// only the first one is used, others will be ignored. 
+/// 
 #[derive(Debug)]
 pub struct Dict {
     root: DictNode,
@@ -108,7 +136,7 @@ impl Dict {
         Dict::load_lines(raw.as_ref().lines())
     }
 
-    /// Load dict from string lines.
+    /// Load dict from lines of string.
     pub fn load_lines<T, S>(lines: T) -> Self
     where T: Iterator<Item=S>,
           S: AsRef<str> {
@@ -124,7 +152,6 @@ impl Dict {
     }
 
     /// Load dict file.
-    /// The format is the same as OpenCC's text dictionary file.
     /// Unrecognizable data will be silently ignored.
     pub fn load<T>(reader: T) -> Self
     where T: Read {
