@@ -3,6 +3,10 @@ name = "simplecc"
 version = "0.1.0"
 authors = ["Shell Chen <me@sorz.org>"]
 repository = "https://github.com/sorz/simplecc-rs"
+description = "A simple Chinese Convert library (partially) compatible with OpenCC's dictionaries."
+readme = "README.md"
+keywords = ["OpenCC"]
+categories = ["text-processing"]
 license = "MIT"
 
 [dependencies]
