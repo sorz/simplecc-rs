@@ -14,6 +14,12 @@
 //!   OpenCC.
 use std::collections::HashMap;
 use std::io::{Read, BufRead, BufReader};
+#[cfg(feature = "builtin_dicts")]
+#[macro_use]
+extern crate lazy_static;
+
+#[cfg(feature = "builtin_dicts")]
+pub mod dicts;
 
 #[cfg(test)]
 mod tests;
@@ -137,31 +143,6 @@ impl DictNode {
 }
 
 impl Dict {
-    /// Built-in Traditional to Simplified Chinese dictionary.
-    ///
-    /// Enable by `builtin_dicts` feature.
-    #[cfg(feature = "builtin_dicts")]
-    pub fn dict_t2s() -> Self {
-        // TODO: use lazy_static
-        let dict = concat!(
-            include_str!("../OpenCC/data/dictionary/TSCharacters.txt"),
-            include_str!("../OpenCC/data/dictionary/TSPhrases.txt"),
-        );
-        Dict::load_str(dict)
-    }
-
-    /// Built-in Simplified to Traditional Chinese dictionary.
-    ///
-    /// Enable by `builtin_dicts` feature.
-    #[cfg(feature = "builtin_dicts")]
-    pub fn dict_s2t() -> Self {
-        let dict = concat!(
-            include_str!("../OpenCC/data/dictionary/STCharacters.txt"),
-            include_str!("../OpenCC/data/dictionary/STPhrases.txt"),
-        );
-        Dict::load_str(dict)
-    }
-
     /// Load dict from string
     pub fn load_str<T>(raw: T) -> Self
     where T: AsRef<str> {

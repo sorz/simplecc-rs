@@ -21,7 +21,8 @@ travis-ci = { repository = "sorz/simplecc-rs" }
 all-features = true
 
 [dependencies]
+lazy_static = { version = "1.0.0", optional = true }
 
 [features]
 default = []
-builtin_dicts = []
+builtin_dicts = ["lazy_static"]
