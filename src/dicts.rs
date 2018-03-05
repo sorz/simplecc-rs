@@ -31,3 +31,24 @@ lazy_static! {
     };
 
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    macro_rules! test {
+        ( $d:path, $x:expr ) => {
+            let input = include_str!(concat!(
+                "../OpenCC/test/testcases/", $x, ".in"));
+            let ans = include_str!(concat!(
+                "../OpenCC/test/testcases/", $x, ".ans"));
+            assert_eq!(ans, $d.replace_all(input));
+        }
+    }
+
+    #[test]
+    fn test_builtin_opencc() {
+        test!(S2T, "s2t");
+        test!(T2S, "t2s");
+    }
+}

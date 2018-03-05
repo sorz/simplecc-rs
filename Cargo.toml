@@ -10,8 +10,9 @@ categories = ["text-processing"]
 license = "MIT"
 include = [
     "**/*.rs",
-    "OpenCC/data/dictionary/*.txt",
     "Cargo.toml",
+    "OpenCC/data/dictionary/*.txt",
+    "OpenCC/test/testcases/*",
 ]
 
 [badges]
