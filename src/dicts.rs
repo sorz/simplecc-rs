@@ -4,7 +4,14 @@
 use Dict;
 
 macro_rules! builtin_dicts {
-    ( $x:expr, $( $y:expr ),* ) => {
+    ( $x:expr ) => {
+        {
+            let lines = include_str!(
+                concat!("../OpenCC/data/dictionary/", $x, ".txt")).lines();
+            Dict::load_lines(lines)
+        }
+    };
+    ( $x:expr $(, $y:expr )+ ) => {
         {
             let lines = include_str!(
                 concat!("../OpenCC/data/dictionary/", $x, ".txt")).lines();
@@ -13,7 +20,7 @@ macro_rules! builtin_dicts {
                 let text = include_str!(
                     concat!("../OpenCC/data/dictionary/", $y, ".txt"));
                 lines = Box::new(lines.chain(text.lines()));
-            )*
+            )+
             Dict::load_lines(lines)
         }
     };
@@ -28,6 +35,23 @@ lazy_static! {
     /// Traditional Chinese to Simplified Chinese
     pub static ref T2S: Dict = {
         builtin_dicts!("TSCharacters", "TSPhrases")
+    };
+
+    /// Simplified Chinese to Traditional Chinese (Taiwan Standard)
+    pub static ref S2TW: Dict = {
+        S2T.clone().chain(builtin_dicts!("TWVariants"))
+    };
+
+    /// Simplified Chinese to Traditional Chinese (Hong Kong Standard)
+    pub static ref S2HK: Dict = {
+        S2T.clone().chain(builtin_dicts!("HKVariants", "HKVariantsPhrases"))
+    };
+
+    /// Simplified Chinese to Traditional Chinese (Taiwan Standard) with
+    /// Taiwanese idiom
+    pub static ref S2TWP: Dict = {
+        S2T.clone().chain(builtin_dicts!("TWVariants",
+            "TWPhrasesIT", "TWPhrasesName", "TWPhrasesOther"))
     };
 
 }
@@ -50,5 +74,12 @@ mod tests {
     fn test_builtin_opencc() {
         test!(S2T, "s2t");
         test!(T2S, "t2s");
+    }
+
+    #[test]
+    fn test_builtin_opencc_chain() {
+        test!(S2TW, "s2tw");
+        test!(S2HK, "s2hk");
+        test!(S2TWP, "s2twp");
     }
 }

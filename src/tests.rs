@@ -10,12 +10,12 @@ ABC\tabc'
 ABCD\tabcd'
 DDD\tddd'
 BB\tbb'");
-    assert_eq!(Some(("A", "a'")), dict.root.prefix_match("A"));
-    assert_eq!(Some(("B", "b'")), dict.root.prefix_match("BXX"));
-    assert_eq!(Some(("ABC", "abc'")), dict.root.prefix_match("ABCX"));
-    assert_eq!(Some(("ABCD", "abcd'")), dict.root.prefix_match("ABCDEFG"));
-    assert_eq!(None, dict.root.prefix_match("X"));
-    assert_eq!(None, dict.root.prefix_match("DD"));
+    assert_eq!(Some(("A", "a'")), dict.roots[0].prefix_match("A"));
+    assert_eq!(Some(("B", "b'")), dict.roots[0].prefix_match("BXX"));
+    assert_eq!(Some(("ABC", "abc'")), dict.roots[0].prefix_match("ABCX"));
+    assert_eq!(Some(("ABCD", "abcd'")), dict.roots[0].prefix_match("ABCDEFG"));
+    assert_eq!(None, dict.roots[0].prefix_match("X"));
+    assert_eq!(None, dict.roots[0].prefix_match("DD"));
 }
 
 #[test]

@@ -32,7 +32,7 @@ mod tests;
 /// For chaining multiple dicts, just concat all to one file (in any order).
 /// 
 /// # Built-in dictionaries
-/// The library includes two optional dictionaries when `builtin_dicts`
+/// The library includes optional dictionaries when `builtin_dicts`
 /// feature is on. Disabled by default.
 /// 
 ///
@@ -45,12 +45,12 @@ mod tests;
 /// which may contains multiples word/phrase splitted by a space (` `), but
 /// only the first one is used, others will be ignored. 
 /// 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Dict {
-    root: DictNode,
+    roots: Vec<DictNode>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum DictNode {
     Leaf {
         key: Box<str>,
@@ -108,7 +108,7 @@ impl DictNode {
             tails.insert(hash_key, node);
             DictNode::Node { value: self_value, tails }
         } else {
-            DictNode::leaf("", value.into())
+            DictNode::Node { value: Some(value.into()), tails }
         }
     }
 
@@ -161,7 +161,7 @@ impl Dict {
             }).fold(DictNode::new(), |dict, (key, value): (String, String)| {
                 dict.add(&key, &value)
             });
-        Dict { root }
+        Dict { roots: vec![root] }
     }
 
     /// Load dict file.
@@ -172,12 +172,17 @@ impl Dict {
         Dict::load_lines(lines)
     }
 
-    /// Use this dict to convert string.
-    /// Return converted text.
-    pub fn replace_all(&self, mut text: &str) -> String {
+    /// Return the new dict that chained together.
+    pub fn chain(self, other: Dict) -> Self {
+        let Dict { mut roots } = self;
+        roots.extend(other.roots);
+        Dict { roots }
+    }
+
+    fn replace(dict: &DictNode, mut text: &str) -> String {
         let mut output = String::with_capacity(text.len());
         while !text.is_empty() {
-            match self.root.prefix_match(text) {
+            match dict.prefix_match(text) {
                 Some((prefix, value)) => {
                     output.push_str(value);
                     text = &text[prefix.len()..];
@@ -190,5 +195,15 @@ impl Dict {
             }
         }
         output
+    }
+
+    /// Use this dict to convert string.
+    /// Return converted text.
+    pub fn replace_all(&self, text: &str) -> String {
+        let mut buffer = Dict::replace(&self.roots[0], text);
+        for dict in &self.roots[1..] {
+            buffer = Dict::replace(dict, &buffer);
+        }
+        buffer
     }
 }
