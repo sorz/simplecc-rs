@@ -144,8 +144,8 @@ impl Dict {
     pub fn dict_t2s() -> Self {
         // TODO: use lazy_static
         let dict = concat!(
-            include_str!("../data/TSCharacters.txt"),
-            include_str!("../data/TSPhrases.txt"),
+            include_str!("../OpenCC/data/dictionary/TSCharacters.txt"),
+            include_str!("../OpenCC/data/dictionary/TSPhrases.txt"),
         );
         Dict::load_str(dict)
     }
@@ -156,8 +156,8 @@ impl Dict {
     #[cfg(feature = "builtin_dicts")]
     pub fn dict_s2t() -> Self {
         let dict = concat!(
-            include_str!("../data/STCharacters.txt"),
-            include_str!("../data/STPhrases.txt"),
+            include_str!("../OpenCC/data/dictionary/STCharacters.txt"),
+            include_str!("../OpenCC/data/dictionary/STPhrases.txt"),
         );
         Dict::load_str(dict)
     }

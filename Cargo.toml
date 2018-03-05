@@ -8,6 +8,11 @@ readme = "README.md"
 keywords = ["OpenCC"]
 categories = ["text-processing"]
 license = "MIT"
+include = [
+    "**/*.rs",
+    "OpenCC/data/dictionary/*.txt",
+    "Cargo.toml",
+]
 
 [badges]
 travis-ci = { repository = "sorz/simplecc-rs" }

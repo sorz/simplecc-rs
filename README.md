@@ -1,7 +1,7 @@
 # simplecc
 [![Travis Build Status](https://travis-ci.org/sorz/simplecc-rs.svg?branch=master)](https://travis-ci.org/sorz/simplecc-rs)
 [![crates.io](https://img.shields.io/crates/v/simplecc.svg)](https://crates.io/crates/simplecc)
-[![API docs](https://docs.rs/simplecc/badge.svg)](http://docs.rs/simplecc)
+[![API docs](https://docs.rs/simplecc/badge.svg)](https://docs.rs/simplecc)
 
 A simple Chinese Convert library (partially) compatible with
 [OpenCC](https://github.com/BYVoid/OpenCC/)'s 
@@ -15,7 +15,7 @@ A simple Chinese Convert library (partially) compatible with
 
 * Fast
 
-  Use hashmap with tree structure for dictionary, faster than original OpenCC.
+  Using hashmap with tree structure, faster than original OpenCC.
 
 This project is used on
 [asstosrt-wasm](https://github.com/sorz/asstosrt-wasm).
