@@ -14,9 +14,6 @@
 //!   OpenCC.
 use std::collections::HashMap;
 use std::io::{Read, BufRead, BufReader};
-#[cfg(feature = "builtin_dicts")]
-#[macro_use]
-extern crate lazy_static;
 
 #[cfg(feature = "builtin_dicts")]
 pub mod dicts;

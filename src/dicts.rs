@@ -1,7 +1,8 @@
 //! A set of built-in OpenCC dictionaries.
 //! 
 //! Turn on `builtin_dicts` feature to enable them.
-use Dict;
+use crate::Dict;
+use lazy_static::lazy_static;
 
 macro_rules! builtin_dicts {
     ( $x:expr ) => {

@@ -1,6 +1,7 @@
 [package]
 name = "simplecc"
-version = "0.2.0"
+version = "0.2.1"
+edition = "2018"
 authors = ["Shell Chen <me@sorz.org>"]
 repository = "https://github.com/sorz/simplecc-rs"
 description = "A simple Chinese Convert library (partially) compatible with OpenCC's dictionaries."
