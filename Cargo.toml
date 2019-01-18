@@ -28,3 +28,10 @@ lazy_static = { version = "1.0.0", optional = true }
 [features]
 default = []
 builtin_dicts = ["lazy_static"]
+
+[dev-dependencies]
+criterion = "0.2"
+
+[[bench]]
+name = "benchmark"
+harness = false
