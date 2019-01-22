@@ -54,7 +54,7 @@ struct Leaf {
     value: Box<str>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 struct Node {
     value: Option<Box<str>>,
     tails: HashMap<char, DictNode>,
@@ -69,11 +69,23 @@ enum DictNode {
 impl DictNode {
     fn node() -> Self {
         DictNode::Node (
-            Node {
-                value: None,
-                tails: HashMap::new(),
-            }
+            Node::default()
         )
+    }
+
+    fn unwrap_node_mut(&mut self) -> &mut Node {
+        match self {
+            DictNode::Node (node) => node,
+            DictNode::Leaf (_) => panic!("expect Node, found Leaf"),
+        }
+
+    }
+
+    fn into_leaf(self) -> Leaf {
+        match self {
+            DictNode::Leaf (leaf) => leaf,
+            DictNode::Node (_) => panic!("expect Leaf, found Node"),
+        }
     }
 
     fn leaf(key: &str, value: Box<str>) -> Self {
@@ -85,38 +97,36 @@ impl DictNode {
         )
     }
 
-    fn destruct(self) -> (Option<Box<str>>, HashMap<char, DictNode>) {
-        match self {
-            DictNode::Node ( Node { value, tails } ) => (value, tails),
-            DictNode::Leaf ( Leaf { key, value } ) => {
-                let mut tails = HashMap::new();
+    fn add(&mut self, key: &str, value: &str) {
+        let self_node = match self {
+            DictNode::Node (node) => node,
+            DictNode::Leaf (_) => {
+                let node = Node::default();
+                let leaf = mem::replace(self, DictNode::Node(node));
+                let Leaf { key, value } = leaf.into_leaf();
+                let mut node = self.unwrap_node_mut();
                 let mut key_chars = key.chars();
-                let value = if let Some(hash_key) = key_chars.next() {
+                node.value = if let Some(hash_key) = key_chars.next() {
                     let suffix = key_chars.as_str().into();
-                    tails.insert(hash_key, DictNode::leaf(suffix, value));
+                    node.tails.insert(hash_key, DictNode::leaf(suffix, value));
                     None
                 } else {
                     Some(value)
                 };
-                (value, tails)
+                node
             }
-        }
-    }
+        };
 
-    fn add(self, key: &str, value: &str) -> Self {
-        let (self_value, mut tails) = self.destruct();
         let mut key_chars = key.chars();
         if let Some(hash_key) = key_chars.next() {
             let suffix = key_chars.as_str().into();
-            let node = if let Some(subnode) = tails.remove(&hash_key) {
-                subnode.add(suffix, value)
-            } else {
-                DictNode::leaf(suffix, value.into())
-            };
-            tails.insert(hash_key, node);
-            DictNode::Node ( Node { value: self_value, tails } )
+            self_node.tails.entry(hash_key)
+                .and_modify(|subnode| subnode.add(suffix, value))
+                .or_insert_with(|| {
+                    DictNode::leaf(suffix, value.into())
+                });
         } else {
-            DictNode::Node ( Node { value: Some(value.into()), tails } )
+            self_node.value = Some(value.into())
         }
     }
 
@@ -161,14 +171,15 @@ impl Dict {
     pub fn load_lines<T, S>(lines: T) -> Self
     where T: Iterator<Item=S>,
           S: AsRef<str> {
-        let root = lines.filter_map(|line| {
-                let mut cols = line.as_ref().splitn(2, '\t');
-                let key = cols.next()?;
-                let value = cols.next()?.splitn(2, ' ').next()?;
-                Some((key.into(), value.into()))
-            }).fold(DictNode::node(), |dict, (key, value): (String, String)| {
-                dict.add(&key, &value)
-            });
+        let mut root = DictNode::node();
+        lines.filter_map(|line| {
+            let mut cols = line.as_ref().splitn(2, '\t');
+            let key = cols.next()?;
+            let value = cols.next()?.splitn(2, ' ').next()?;
+            Some((key.into(), value.into()))
+        }).for_each(|(key, value): (String, String)| {
+            root.add(&key, &value)
+        });
         Dict { roots: vec![root] }
     }
 
