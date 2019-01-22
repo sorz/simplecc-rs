@@ -12,9 +12,12 @@
 //! 
 //!   Use hashmap with tree structure for dictionary, faster than original
 //!   OpenCC.
-use std::collections::HashMap;
-use std::io::{Read, BufRead, BufReader};
-use std::mem;
+use std::{
+    collections::HashMap,
+    collections::hash_map::Entry,
+    io::{Read, BufRead, BufReader},
+    mem,
+};
 
 #[cfg(feature = "builtin_dicts")]
 pub mod dicts;
@@ -97,7 +100,7 @@ impl DictNode {
         )
     }
 
-    fn add(&mut self, key: &str, value: &str) {
+    fn add(&mut self, key: &str, value: Box<str>) {
         let self_node = match self {
             DictNode::Node (node) => node,
             DictNode::Leaf (_) => {
@@ -120,13 +123,16 @@ impl DictNode {
         let mut key_chars = key.chars();
         if let Some(hash_key) = key_chars.next() {
             let suffix = key_chars.as_str().into();
-            self_node.tails.entry(hash_key)
-                .and_modify(|subnode| subnode.add(suffix, value))
-                .or_insert_with(|| {
-                    DictNode::leaf(suffix, value.into())
-                });
+            match self_node.tails.entry(hash_key) {
+                Entry::Occupied(mut entry) => {
+                    entry.get_mut().add(suffix, value);
+                }
+                Entry::Vacant(entry) => {
+                    entry.insert(DictNode::leaf(suffix, value));
+                }
+            };
         } else {
-            self_node.value = Some(value.into())
+            self_node.value = Some(value);
         }
     }
 
@@ -177,8 +183,8 @@ impl Dict {
             let key = cols.next()?;
             let value = cols.next()?.splitn(2, ' ').next()?;
             Some((key.into(), value.into()))
-        }).for_each(|(key, value): (String, String)| {
-            root.add(&key, &value)
+        }).for_each(|(key, value): (String, Box<str>)| {
+            root.add(&key, value)
         });
         Dict { roots: vec![root] }
     }
