@@ -14,6 +14,7 @@
 //!   OpenCC.
 use std::collections::HashMap;
 use std::io::{Read, BufRead, BufReader};
+use std::mem;
 
 #[cfg(feature = "builtin_dicts")]
 pub mod dicts;
@@ -48,36 +49,46 @@ pub struct Dict {
 }
 
 #[derive(Debug, Clone)]
+struct Leaf {
+    key: Box<str>,
+    value: Box<str>,
+}
+
+#[derive(Debug, Clone)]
+struct Node {
+    value: Option<Box<str>>,
+    tails: HashMap<char, DictNode>,
+}
+
+#[derive(Debug, Clone)]
 enum DictNode {
-    Leaf {
-        key: Box<str>,
-        value: Box<str>,
-    },
-    Node {
-        value: Option<Box<str>>,
-        tails: HashMap<char, DictNode>,
-    }
+    Leaf (Leaf),
+    Node (Node),
 }
 
 impl DictNode {
-    fn new() -> Self {
-        DictNode::Node {
-            value: None,
-            tails: HashMap::new(),
-        }
+    fn node() -> Self {
+        DictNode::Node (
+            Node {
+                value: None,
+                tails: HashMap::new(),
+            }
+        )
     }
 
     fn leaf(key: &str, value: Box<str>) -> Self {
-        DictNode::Leaf {
-            key: key.into(),
-            value,
-        }
+        DictNode::Leaf (
+            Leaf {
+                key: key.into(),
+                value,
+            }
+        )
     }
 
     fn destruct(self) -> (Option<Box<str>>, HashMap<char, DictNode>) {
         match self {
-            DictNode::Node { value, tails } => (value, tails),
-            DictNode::Leaf { key, value } => {
+            DictNode::Node ( Node { value, tails } ) => (value, tails),
+            DictNode::Leaf ( Leaf { key, value } ) => {
                 let mut tails = HashMap::new();
                 let mut key_chars = key.chars();
                 let value = if let Some(hash_key) = key_chars.next() {
@@ -103,23 +114,23 @@ impl DictNode {
                 DictNode::leaf(suffix, value.into())
             };
             tails.insert(hash_key, node);
-            DictNode::Node { value: self_value, tails }
+            DictNode::Node ( Node { value: self_value, tails } )
         } else {
-            DictNode::Node { value: Some(value.into()), tails }
+            DictNode::Node ( Node { value: Some(value.into()), tails } )
         }
     }
 
     fn prefix_match<'a, 'b>(&'a self, query: &'b str)
             -> Option<(&'b str, &'a str)> {
         match self {
-            &DictNode::Leaf { ref key, ref value } => {
+            &DictNode::Leaf ( Leaf { ref key, ref value } ) => {
                 if query.starts_with(&**key) {
                     Some((&query[..key.len()], &value))
                 } else {
                     None
                 }
             },
-            &DictNode::Node { ref value, ref tails } => {
+            &DictNode::Node ( Node { ref value, ref tails } ) => {
                 let mut query_chars = query.chars();
                 let hash_key = query_chars.next();
                 let suffix = query_chars.as_str();
@@ -155,7 +166,7 @@ impl Dict {
                 let key = cols.next()?;
                 let value = cols.next()?.splitn(2, ' ').next()?;
                 Some((key.into(), value.into()))
-            }).fold(DictNode::new(), |dict, (key, value): (String, String)| {
+            }).fold(DictNode::node(), |dict, (key, value): (String, String)| {
                 dict.add(&key, &value)
             });
         Dict { roots: vec![root] }
